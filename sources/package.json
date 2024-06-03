@@ -8,8 +8,14 @@
   "module": "./dist/vue-text-insert.es.js",
   "exports": {
     ".": {
-      "import": "./dist/vue-text-insert.es.js",
-      "require": "./dist/vue-text-insert.umd.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/vue-text-insert.es.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/vue-text-insert.umd.js"
+      }
     }
   },
   "types": "./dist/index.d.ts",
