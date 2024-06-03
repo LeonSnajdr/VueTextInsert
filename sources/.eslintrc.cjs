@@ -8,7 +8,7 @@ module.exports = {
     "@vue/eslint-config-typescript/recommended",
     "plugin:vue/vue3-strongly-recommended",
     "eslint:recommended",
-    "./.eslint.cjs",
+    "./.eslint.cjs"
   ],
   parserOptions: {
     ecmaVersion: "latest"
