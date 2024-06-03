@@ -1,7 +1,18 @@
 {
-  "name": "sources",
-  "version": "0.0.0",
-  "private": true,
+  "name": "vue-text-insert",
+  "version": "0.0.1",
+  "private": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/vue-text-insert.umd.js",
+  "module": "./dist/vue-text-insert.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-text-insert.es.js",
+      "require": "./dist/vue-text-insert.umd.js"
+    }
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
