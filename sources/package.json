@@ -12,6 +12,7 @@
       "require": "./dist/vue-text-insert.umd.js"
     }
   },
+  "types": "./dist/index.d.ts",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -21,6 +22,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "rollup-plugin-typescript2": "^0.36.0",
     "vue": "^3.4.21"
   },
   "devDependencies": {
