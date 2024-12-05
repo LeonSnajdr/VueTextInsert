@@ -7,7 +7,7 @@ export default defineConfig({
     build: {
         emptyOutDir: true,
         lib: {
-            entry: "./src/index.ts",
+            entry: "./src/main.ts",
             name: "vue-text-insert",
             fileName: (format) => `vue-text-insert.${format}.js`,
         },
