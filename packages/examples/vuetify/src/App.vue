@@ -1,11 +1,15 @@
 <template>
     <VApp>
         <VMain>
-            <VueTextInsert></VueTextInsert>
+            <VField variant="outlined" class="pa-2 ma-4">
+                <VueTextInsertEditor></VueTextInsertEditor>
+            </VField>
         </VMain>
     </VApp>
 </template>
 
 <script setup lang="ts">
-import { VueTextInsert } from "vue-text-insert";
+import { VueTextInsertEditor, TextInsertEditorOptions } from "vue-text-insert";
+
+const editorOptions: TextInsertEditorOptions = {} as TextInsertEditorOptions;
 </script>

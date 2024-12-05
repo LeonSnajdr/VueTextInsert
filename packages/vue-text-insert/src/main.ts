@@ -1,8 +1,8 @@
 import { App } from "vue";
-import VueTextInsert from "./components/VueTextInsert.vue";
-import MountService from "./services/MountService";
+import MountService from "./MountService";
 
-export { VueTextInsert };
+export * as VueTextInsertEditor from "./VueTextInsertEditor.vue";
+export * from "./VueTextInsertTypes";
 
 export default {
     install: (app: App) => {
