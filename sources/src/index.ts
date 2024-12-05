@@ -1,10 +1,11 @@
-import TextInsert from "@/components/TextInsert.vue";
 import type { App } from "vue";
+import MountService from "./services/MountService";
 
 export default {
     install: (app: App) => {
-        app.component("TextInsert", TextInsert);
+        MountService.setAppInstance(app);
     }
 };
 
-export { TextInsert };
+export { type InsertItem } from "@/contracts/Insert";
+export { default as TextInsert } from "@/components/TextInsert.vue";
