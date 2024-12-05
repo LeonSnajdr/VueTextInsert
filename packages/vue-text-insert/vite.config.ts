@@ -20,5 +20,5 @@ export default defineConfig({
             },
         },
     },
-    plugins: [vue(), dts({ tsconfigPath: "./tsconfig.app.json" })],
+    plugins: [vue(), dts({ tsconfigPath: "./tsconfig.json" })],
 });
