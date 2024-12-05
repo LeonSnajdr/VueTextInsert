@@ -5,6 +5,7 @@
     "author": "lsnajdr",
     "license": "MIT",
     "workspaces": [
-        "packages/vue-text-insert"
+        "packages/vue-text-insert",
+        "packages/examples/vuetify"
     ]
 }
