@@ -1,0 +1,12 @@
+{
+  "name": "vuetextinsert",
+  "version": "0.0.0",
+  "description": "A library to insert informations like mentions and placeholders into text",
+  "keywords": [],
+  "author": "lsnajdr",
+  "license": "MIT",
+  "workspaces": [
+    "packages/examples/vuetify",
+    "packages/vue-text-insert"
+  ]
+}
