@@ -357,6 +357,3 @@ healthchecksdb
 
 # Rider 
 **/.idea
-
-# VSCode
-.vscode
