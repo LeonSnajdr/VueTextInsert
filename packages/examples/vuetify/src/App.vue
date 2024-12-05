@@ -1,5 +1,9 @@
 <template>
-    <VueTextInsert></VueTextInsert>
+    <VApp>
+        <VMain>
+            <VueTextInsert></VueTextInsert>
+        </VMain>
+    </VApp>
 </template>
 
 <script setup lang="ts">
