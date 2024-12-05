@@ -10,7 +10,7 @@
         "dist"
     ],
     "scripts": {
-        "dev": "vite build --watch",
+        "dev": "vue-tsc -b && vite build --watch",
         "build": "vue-tsc -b && vite build"
     },
     "dependencies": {
