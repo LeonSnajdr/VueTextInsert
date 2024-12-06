@@ -1,7 +1,7 @@
 <template>
     <VApp>
         <VMain>
-            <VField variant="outlined" style="padding: 5px" active>
+            <VField variant="outlined" class="pa-2 ma-4" active>
                 <VueTextInsertEditor v-model="renderArray" :editorOptions></VueTextInsertEditor>
             </VField>
         </VMain>

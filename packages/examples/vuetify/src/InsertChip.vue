@@ -1,12 +1,12 @@
 <template>
-    <v-chip class="mx-1" prependIcon="mdi-account" closable @click:close.prevent="props.destroy()" size="small">
+    <VChip class="mx-1" prependIcon="mdi-account" closable @click:close.prevent="props.destroy()" size="small">
         {{ props.item.value }}
-        <v-menu activator="parent">
-            <v-card>
-                <v-card-text> Heyho </v-card-text>
-            </v-card>
-        </v-menu>
-    </v-chip>
+        <VMenu activator="parent">
+            <VCard>
+                <VCardText> Heyho </VCardText>
+            </VCard>
+        </VMenu>
+    </VChip>
 </template>
 
 <script setup lang="ts">
