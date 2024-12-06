@@ -2,6 +2,7 @@
     <VApp>
         <VMain>
             <VContainer>
+                {{ renderArray }}
                 <VField variant="outlined" class="pa-2 mb-2" active>
                     <VueTextInsertEditor v-model="renderArray" :editorOptions spellcheck="false"></VueTextInsertEditor>
                 </VField>

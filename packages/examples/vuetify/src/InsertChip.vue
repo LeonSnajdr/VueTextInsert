@@ -1,5 +1,5 @@
 <template>
-    <VChip class="mx-1" prependIcon="mdi-account" closable @click:close.prevent="props.destroy()" size="small">
+    <VChip class="mx-1" prependIcon="mdi-account" closable @click:close.prevent="props.remove()" size="small">
         {{ props.item.value }}
         <VMenu activator="parent">
             <VCard>

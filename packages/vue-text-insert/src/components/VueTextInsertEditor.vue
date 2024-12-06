@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts" generic="T, U extends string">
-import { onMounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { mount, MountResult } from "mount-vue-component";
 import { v4 as uuid } from "uuid";
 import { InsertProps } from "../types/PropTypes";
@@ -19,22 +19,32 @@ const items = defineModel<T[]>({ required: true });
 
 const editor = ref<HTMLDivElement>();
 
-let insertElements: InsertElement<T>[] = [];
+let internalItemsChange = false;
+let insertElements: Record<string, InsertElement<T>> = {};
 
 onMounted(() => {
     render();
 });
 
+onBeforeUnmount(() => {
+    clear();
+});
+
 watch(
     items,
     () => {
+        if (internalItemsChange) {
+            internalItemsChange = false;
+            return;
+        }
+
         render();
     },
     { deep: true }
 );
 
 const input = () => {
-    throw "Not implemented!";
+    parseText();
 };
 
 const copy = () => {
@@ -72,13 +82,14 @@ const buildInsertElement = (item: T): MountResult => {
 
     const wrapperElement = document.createElement("span");
     wrapperElement.contentEditable = "false";
-    wrapperElement.setAttribute("insertElementId", insertElementId);
+    wrapperElement.setAttribute("insert-element-id", insertElementId);
+    wrapperElement.setAttribute("insert-item-content", JSON.stringify(item));
 
     const insertProps: InsertProps<T> = {
         item: item,
-        destroy: () => {
-            const insertElement = insertElements.find((x) => x.id === insertElementId);
-            insertElement!.destroy();
+        remove: () => {
+            wrapperElement.remove();
+            parseText();
         },
     };
 
@@ -91,25 +102,72 @@ const buildInsertElement = (item: T): MountResult => {
     const insertElement: InsertElement<T> = {
         id: insertElementId,
         item: item,
-        destroy: () => {
-            wrapperElement.remove();
+        unmount: () => {
             mountResult.destroy();
         },
     };
 
-    insertElements.push(insertElement);
+    insertElements[insertElementId] = insertElement;
 
     return mountResult;
 };
 
 const clear = () => {
-    insertElements.forEach((insertElement) => {
-        insertElement.destroy();
-    });
+    Object.keys(insertElements).forEach((x) => insertElements[x].unmount());
 
-    insertElements = [];
+    insertElements = {};
 
     editor.value!.innerHTML = "";
+};
+
+const parseText = () => {
+    const newInsertItems: T[] = [];
+    const foundInsertElementIds: string[] = [];
+
+    const addTextItem = (value: string) => {
+        const item = {
+            [props.editorOptions.typeField]: props.editorOptions.textType,
+            [props.editorOptions.valueField]: value,
+        } as T;
+
+        newInsertItems.push(item);
+    };
+
+    const addInsertItem = (itemContent: string) => {
+        const item: T = JSON.parse(itemContent);
+        newInsertItems.push(item);
+    };
+
+    let currentText = "";
+
+    editor.value!.childNodes.forEach((node) => {
+        const element = node as HTMLElement;
+
+        if (element.nodeType === Node.TEXT_NODE) {
+            currentText += element.textContent;
+        } else if (element.nodeType === Node.ELEMENT_NODE) {
+            if (currentText) {
+                addTextItem(currentText);
+                currentText = "";
+            }
+
+            addInsertItem(element.getAttribute("insert-item-content")!);
+            foundInsertElementIds.push(element.getAttribute("insert-element-id")!);
+        }
+    });
+
+    if (currentText) {
+        addTextItem(currentText);
+    }
+
+    const deletedElementIds = Object.keys(insertElements).filter((x) => !foundInsertElementIds.includes(x));
+    deletedElementIds.forEach((x) => {
+        insertElements[x].unmount();
+        delete insertElements[x];
+    });
+
+    internalItemsChange = true;
+    items.value = newInsertItems;
 };
 
 const getItemType = (item: T): U => {
