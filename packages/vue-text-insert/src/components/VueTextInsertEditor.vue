@@ -1,5 +1,14 @@
 <template>
-    <div ref="editor" @input="input" @keydown.enter.prevent @copy.prevent="copy" @paste.prevent="paste" style="width: 100%; outline: none" contenteditable />
+    <div
+        ref="editor"
+        @input="input"
+        @keydown="keydown"
+        @keydown.enter.prevent
+        @copy.prevent="copy"
+        @paste.prevent="paste"
+        style="width: 100%; outline: none"
+        contenteditable
+    />
 </template>
 
 <script setup lang="ts" generic="T, U extends string">
@@ -43,7 +52,15 @@ watch(
     { deep: true }
 );
 
+const keydown = (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+        e.preventDefault();
+    }
+};
+
 const input = () => {
+    console.log("input");
+
     parseText();
 };
 

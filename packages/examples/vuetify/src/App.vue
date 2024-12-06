@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { InsertItem, InsertType } from "./Insert";
+import { InsertItem, InsertItemPerson, InsertType } from "./Insert";
 import { ref } from "vue";
 import InsertChip from "./InsertChip.vue";
 import InsertMenu from "./InsertMenu.vue";
@@ -23,7 +23,7 @@ const renderArray = ref<InsertItem[]>([
     { type: InsertType.Text, value: "Ich finde" },
     { type: InsertType.Person, value: "Kittel" },
     { type: InsertType.Text, value: "sodert weniger als" },
-    { type: InsertType.Person, value: "Roli" },
+    { type: InsertType.Person, value: "Roli", name: "Roli", age: 30, childern: [{ childName: "Leon" }] } as InsertItemPerson,
     { type: InsertType.Text, value: ". Das ist allerdings nicht schwer" },
 ]);
 

@@ -1,9 +1,12 @@
 <template>
     <VChip class="mx-1" prependIcon="mdi-account" closable @click:close.prevent="props.remove()" size="small">
-        {{ props.item.value }}
+        {{ item.name }} | {{ item.age }}
         <VMenu activator="parent">
             <VCard>
-                <VCardText> Heyho </VCardText>
+                <VCardText>
+                    <h3>Children:</h3>
+                    <p v-for="child in item.childern">- {{ child.childName }}</p>
+                </VCardText>
             </VCard>
         </VMenu>
     </VChip>
@@ -12,9 +15,9 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from "vue";
 import { InsertProps } from "vue-text-insert";
-import { InsertItem } from "./Insert";
+import { InsertItemPerson } from "./Insert";
 
-const props = defineProps<InsertProps<InsertItem>>();
+const props = defineProps<InsertProps<InsertItemPerson>>();
 
 onMounted(() => {});
 
