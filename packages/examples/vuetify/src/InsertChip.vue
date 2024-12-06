@@ -16,9 +16,7 @@ import { InsertItem } from "./Insert";
 
 const props = defineProps<InsertProps<InsertItem>>();
 
-onMounted(() => {
-    console.log(props);
-});
+onMounted(() => {});
 
 onBeforeUnmount(() => {
     console.log("unmounted");

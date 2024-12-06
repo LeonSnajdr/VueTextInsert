@@ -1,9 +1,12 @@
 <template>
     <VApp>
         <VMain>
-            <VField variant="outlined" class="pa-2 ma-4" active>
-                <VueTextInsertEditor v-model="renderArray" :editorOptions></VueTextInsertEditor>
-            </VField>
+            <VContainer>
+                <VField variant="outlined" class="pa-2 mb-2" active>
+                    <VueTextInsertEditor v-model="renderArray" :editorOptions spellcheck="false"></VueTextInsertEditor>
+                </VField>
+                <VBtn @click="addItem()">Add item</VBtn>
+            </VContainer>
         </VMain>
     </VApp>
 </template>
@@ -34,5 +37,12 @@ const editorOptions: EditorOptions<InsertItem, InsertType> = {
             menuComponent: InsertMenu,
         },
     },
+};
+
+const addItem = () => {
+    renderArray.value.push({
+        type: InsertType.Person,
+        value: "adedd",
+    });
 };
 </script>

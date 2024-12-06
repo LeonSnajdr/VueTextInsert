@@ -16,9 +16,10 @@ const props = defineProps<{
 }>();
 
 const items = defineModel<T[]>({ required: true });
-const insertElements = ref<InsertElement[]>([]);
 
 const editor = ref<HTMLDivElement>();
+
+let insertElements: InsertElement<T>[] = [];
 
 onMounted(() => {
     render();
@@ -45,6 +46,8 @@ const paste = () => {
 };
 
 const render = (): void => {
+    clear();
+
     items.value.forEach((item) => {
         const isConfiguredType = Object.keys(props.editorOptions.insertOptions).includes(getItemType(item));
         const isTextType = getItemType(item) === props.editorOptions.textType;
@@ -74,7 +77,7 @@ const buildInsertElement = (item: T): MountResult => {
     const insertProps: InsertProps<T> = {
         item: item,
         destroy: () => {
-            const insertElement = insertElements.value.find((x) => x.id === insertElementId);
+            const insertElement = insertElements.find((x) => x.id === insertElementId);
             insertElement!.destroy();
         },
     };
@@ -85,17 +88,28 @@ const buildInsertElement = (item: T): MountResult => {
         app: MountService.getAppInstance(),
     });
 
-    const insertElement: InsertElement = {
+    const insertElement: InsertElement<T> = {
         id: insertElementId,
+        item: item,
         destroy: () => {
             wrapperElement.remove();
             mountResult.destroy();
         },
     };
 
-    insertElements.value.push(insertElement);
+    insertElements.push(insertElement);
 
     return mountResult;
+};
+
+const clear = () => {
+    insertElements.forEach((insertElement) => {
+        insertElement.destroy();
+    });
+
+    insertElements = [];
+
+    editor.value!.innerHTML = "";
 };
 
 const getItemType = (item: T): U => {
