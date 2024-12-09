@@ -11,9 +11,7 @@
 </template>
 
 <script setup lang="ts" generic="T, U extends string">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { mount, MountResult } from "mount-vue-component";
-import { v4 as uuid } from "uuid";
+import { onBeforeUnmount, onMounted, ref, watch, render as vueRender, h } from "vue";
 import { InsertProps } from "../types/PropTypes";
 import { EditorOptions } from "../types/OptionTypes";
 import { InsertElement } from "../types/InternalTypes";
@@ -57,7 +55,7 @@ const keydown = (e: KeyboardEvent) => {
     }
 };
 
-const input = (e: InputEvent) => {
+const input = () => {
     parseText();
 };
 
@@ -83,52 +81,56 @@ const render = (): void => {
 
         if (isTextType) {
             const itemValue = getItemValue(item);
-            addElementToEditor(itemValue);
+            editor.value!.append(itemValue);
             return;
         }
 
-        const insertElement = buildInsertElement(item);
-        addElementToEditor(insertElement.el);
+        const insertElement = addInsertElement(item);
+        editor.value!.append(insertElement.element);
     });
 };
 
-const addElementToEditor = (element: Node | string) => {
-    editor.value!.append(element);
-};
-
-const buildInsertElement = (item: T): MountResult => {
-    const insertElementId = uuid();
+const addInsertElement = (item: T): InsertElement<T> => {
+    const insertElementId = crypto.randomUUID();
 
     const wrapperElement = document.createElement("span");
     wrapperElement.contentEditable = "false";
     wrapperElement.setAttribute("insert-element-id", insertElementId);
     wrapperElement.setAttribute("insert-item-content", JSON.stringify(item));
 
+    const insertOptions = props.editorOptions.insertOptions[getItemType(item)];
+
+    if (!insertOptions) {
+        throw `Failed to mount insert item ${JSON.stringify(item)}, because insertOptions are missing`;
+    }
+
     const insertProps: InsertProps<T> = {
         item: item,
-        remove: () => {
+        destroy: () => {
             wrapperElement.remove();
             parseText();
         },
     };
 
-    const mountResult = mount(props.editorOptions.insertOptions[getItemType(item)]!.insertComponent, {
-        props: insertProps,
-        element: wrapperElement,
-        app: MountService.getAppInstance(),
-    });
+    let vNode = h(insertOptions.insertComponent, insertProps);
+    vNode.appContext = MountService.getAppInstance()._context;
+    vueRender(vNode, wrapperElement);
 
-    const insertElement: InsertElement<T> = {
+    var insertElement: InsertElement<T> = {
         id: insertElementId,
         item: item,
+        element: wrapperElement,
         unmount: () => {
-            mountResult.destroy();
+            vueRender(null, wrapperElement);
+            wrapperElement.remove();
         },
     };
 
     insertElements[insertElementId] = insertElement;
 
-    return mountResult;
+    editor.value!.append(wrapperElement);
+
+    return insertElement;
 };
 
 const clear = () => {

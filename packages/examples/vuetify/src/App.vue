@@ -7,9 +7,6 @@
                     <VueTextInsertEditor v-model="renderArray" :editorOptions spellcheck="false"></VueTextInsertEditor>
                 </VField>
                 <VBtn @click="addItem()">Add item</VBtn>
-                <div contenteditable="true">
-                    <div>hallo</div>
-                </div>
             </VContainer>
         </VMain>
     </VApp>
@@ -22,7 +19,13 @@ import InsertChip from "./InsertChip.vue";
 import InsertMenu from "./InsertMenu.vue";
 import { VueTextInsertEditor, EditorOptions } from "vue-text-insert";
 
-const renderArray = ref<InsertItem[]>([{ type: InsertType.Text, value: "Das ist allerdings\nnicht schwer" }]);
+const renderArray = ref<InsertItem[]>([
+    { type: InsertType.Text, value: "Ich finde" },
+    { type: InsertType.Person, value: "Kittel", age: 30, childern: [{ childName: "Roli" }] },
+    { type: InsertType.Text, value: "sodert weniger als" },
+    { type: InsertType.Person, value: "Roli", age: 30, childern: [{ childName: "Leon" }] } as InsertItemPerson,
+    { type: InsertType.Text, value: ". Das ist allerdings\nnicht schwer" },
+]);
 
 const editorOptions: EditorOptions<InsertItem, InsertType> = {
     textType: InsertType.Text,

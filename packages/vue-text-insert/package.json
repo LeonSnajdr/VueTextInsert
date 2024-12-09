@@ -14,8 +14,6 @@
         "build": "vue-tsc -b && vite build"
     },
     "dependencies": {
-        "mount-vue-component": "^0.10.2",
-        "uuid": "^11.0.3",
         "vue": "^3.5.13"
     },
     "devDependencies": {
