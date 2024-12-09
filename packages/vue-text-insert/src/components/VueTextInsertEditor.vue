@@ -3,12 +3,11 @@
         ref="editor"
         @input="input"
         @keydown="keydown"
-        @keydown.enter.prevent
         @copy.prevent="copy"
         @paste.prevent="paste"
         style="width: 100%; outline: none"
-        contenteditable
-    />
+        contenteditable="plaintext-only"
+    ></div>
 </template>
 
 <script setup lang="ts" generic="T, U extends string">
@@ -58,9 +57,7 @@ const keydown = (e: KeyboardEvent) => {
     }
 };
 
-const input = () => {
-    console.log("input");
-
+const input = (e: InputEvent) => {
     parseText();
 };
 
@@ -85,13 +82,18 @@ const render = (): void => {
         }
 
         if (isTextType) {
-            editor.value!.append(getItemValue(item));
+            const itemValue = getItemValue(item);
+            addElementToEditor(itemValue);
             return;
         }
 
         const insertElement = buildInsertElement(item);
-        editor.value!.appendChild(insertElement.el);
+        addElementToEditor(insertElement.el);
     });
+};
+
+const addElementToEditor = (element: Node | string) => {
+    editor.value!.append(element);
 };
 
 const buildInsertElement = (item: T): MountResult => {
@@ -168,8 +170,12 @@ const parseText = () => {
                 currentText = "";
             }
 
-            addInsertItem(element.getAttribute("insert-item-content")!);
-            foundInsertElementIds.push(element.getAttribute("insert-element-id")!);
+            const itemContent = element.getAttribute("insert-item-content");
+
+            if (itemContent) {
+                addInsertItem(itemContent);
+                foundInsertElementIds.push(element.getAttribute("insert-element-id")!);
+            }
         }
     });
 

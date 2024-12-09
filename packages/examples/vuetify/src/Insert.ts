@@ -6,7 +6,6 @@ export interface InsertItem {
 export interface InsertItemText extends InsertItem {}
 
 export interface InsertItemPerson extends InsertItem {
-    name: string;
     age: number;
     childern: InsertItemPersonChild[];
 }
