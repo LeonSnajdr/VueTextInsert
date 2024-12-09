@@ -4,7 +4,7 @@
             <VContainer>
                 {{ renderArray }}
                 <VField variant="outlined" class="pa-2 mb-2" active>
-                    <VueTextInsertEditor v-model="renderArray" :editorOptions spellcheck="false"></VueTextInsertEditor>
+                    <VueTextInsertEditor v-model="renderArray" :editorOptions></VueTextInsertEditor>
                 </VField>
                 <VBtn @click="addItem()">Add item</VBtn>
             </VContainer>
@@ -27,7 +27,7 @@ const renderArray = ref<InsertItem[]>([
     { type: InsertType.Text, value: ". Das ist allerdings\nnicht schwer" },
 ]);
 
-const editorOptions: EditorOptions<InsertItem, InsertType> = {
+const editorOptions: EditorOptions<InsertItem> = {
     textType: InsertType.Text,
     typeField: "type",
     valueField: "value",

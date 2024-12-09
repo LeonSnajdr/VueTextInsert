@@ -1,10 +1,10 @@
 import { Component } from "vue";
 
-export interface EditorOptions<T, U extends string> {
-    textType: U;
+export interface EditorOptions<T> {
+    textType: string;
     typeField: keyof T;
     valueField: keyof T;
-    insertOptions: Partial<Record<U, InsertOption>>;
+    insertOptions: Record<string, InsertOption>;
 }
 
 export interface InsertOption {

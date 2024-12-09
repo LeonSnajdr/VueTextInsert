@@ -1,4 +1,5 @@
 <template>
+    <span ref="menu"></span>
     <div
         ref="editor"
         @input="input"
@@ -10,18 +11,22 @@
     ></div>
 </template>
 
-<script setup lang="ts" generic="T, U extends string">
-import { onBeforeUnmount, onMounted, ref, watch, render as vueRender, h } from "vue";
-import { InsertProps } from "../types/PropTypes";
-import { EditorOptions } from "../types/OptionTypes";
-import { InsertElement } from "../types/InternalTypes";
-import MountService from "../services/MountService";
+<script setup lang="ts" generic="T">
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { InsertProps, MenuProps } from "../types/PropTypes";
+import { EditorOptions, InsertOption } from "../types/OptionTypes";
+import { InsertElement, InsertMenu } from "../types/InternalTypes";
+import { useComponentMounter } from "../composable/componentMounter";
 
 const props = defineProps<{
-    editorOptions: EditorOptions<T, U>;
+    editorOptions: EditorOptions<T>;
 }>();
 
 const items = defineModel<T[]>({ required: true });
+
+const menu = ref<HTMLSpanElement>();
+const menuProps = ref<MenuProps<T>>();
+const insertMenu = ref<InsertMenu>();
 
 const editor = ref<HTMLDivElement>();
 
@@ -56,7 +61,102 @@ const keydown = (e: KeyboardEvent) => {
 };
 
 const input = () => {
+    detectMenu();
     parseText();
+};
+
+const detectMenu = () => {
+    const range = window.getSelection()!.getRangeAt(0);
+    const offset = range.endOffset;
+    const text = range.startContainer.textContent ?? "";
+
+    const triggeredInsert = findTriggeredInsert(text);
+
+    if (!triggeredInsert) {
+        if (!menuProps.value) return;
+
+        menuProps.value.active = false;
+        return;
+    }
+
+    const startOffset = offset - (triggeredInsert.query.length + triggeredInsert.insertOption.trigger.length);
+
+    const span = document.createElement("span");
+    span.appendChild(document.createTextNode("\u200b"));
+    range.insertNode(span);
+    const rect = span.getBoundingClientRect();
+    const positon: [number, number] = [rect.left, rect.top + 30];
+    span.remove();
+
+    menuProps.value = {
+        active: true,
+        query: triggeredInsert.query,
+        addInsert: (item: T) => {
+            const newInsertElement = buildInsertElement(item);
+
+            const replaceRange = document.createRange();
+            replaceRange.setStart(range.startContainer, startOffset);
+            replaceRange.setEnd(range.startContainer, offset);
+
+            replaceRange.deleteContents();
+            replaceRange.insertNode(newInsertElement.mountResult.element);
+
+            // Move the cursor to the end of the inserted node
+            const selection = window.getSelection();
+            replaceRange.setStartAfter(newInsertElement.mountResult.element);
+            replaceRange.setEndAfter(newInsertElement.mountResult.element);
+            selection!.removeAllRanges();
+            selection!.addRange(replaceRange);
+
+            menuProps.value!.active = false;
+            parseText();
+        },
+        position: positon,
+    };
+
+    if (insertMenu.value?.activeType == triggeredInsert.type) return;
+
+    insertMenu.value?.mountResult.unmount();
+
+    const menuMountResult = useComponentMounter(triggeredInsert.insertOption.menuComponent, { menu: menuProps });
+
+    menu.value!.innerHTML = "";
+    menu.value!.appendChild(menuMountResult.element);
+
+    insertMenu.value = {
+        activeType: triggeredInsert.type,
+        mountResult: menuMountResult,
+    };
+};
+
+const findTriggeredInsert = (text: string): { type: string; insertOption: InsertOption; query: string } | undefined => {
+    let lastTriggerIndex = -1;
+
+    let lastInsertType: string = "";
+    let lastInsertOption: InsertOption = {} as InsertOption;
+
+    for (const [insertType, insertOption] of Object.entries(props.editorOptions.insertOptions)) {
+        let triggerIndex = text.lastIndexOf(insertOption.trigger);
+
+        if (triggerIndex > lastTriggerIndex) {
+            lastTriggerIndex = triggerIndex;
+            lastInsertType = insertType;
+            lastInsertOption = insertOption;
+        }
+    }
+
+    if (lastTriggerIndex === -1) return undefined;
+
+    const resultText = text.slice(lastTriggerIndex + lastInsertOption.trigger.length);
+    const hasWhitespace = /\s{2,}/.test(resultText);
+
+    if (hasWhitespace) return undefined;
+
+    return {
+        type: lastInsertType,
+        insertOption: lastInsertOption,
+        query: resultText,
+    };
 };
 
 const copy = () => {
@@ -85,12 +185,12 @@ const render = (): void => {
             return;
         }
 
-        const insertElement = addInsertElement(item);
-        editor.value!.append(insertElement.element);
+        const insertElement = buildInsertElement(item);
+        editor.value!.append(insertElement.mountResult.element);
     });
 };
 
-const addInsertElement = (item: T): InsertElement<T> => {
+const buildInsertElement = (item: T): InsertElement<T> => {
     const insertElementId = crypto.randomUUID();
 
     const wrapperElement = document.createElement("span");
@@ -112,18 +212,12 @@ const addInsertElement = (item: T): InsertElement<T> => {
         },
     };
 
-    let vNode = h(insertOptions.insertComponent, insertProps);
-    vNode.appContext = MountService.getAppInstance()._context;
-    vueRender(vNode, wrapperElement);
+    const mountResult = useComponentMounter(insertOptions.insertComponent, insertProps, wrapperElement);
 
     var insertElement: InsertElement<T> = {
         id: insertElementId,
         item: item,
-        element: wrapperElement,
-        unmount: () => {
-            vueRender(null, wrapperElement);
-            wrapperElement.remove();
-        },
+        mountResult: mountResult,
     };
 
     insertElements[insertElementId] = insertElement;
@@ -134,7 +228,7 @@ const addInsertElement = (item: T): InsertElement<T> => {
 };
 
 const clear = () => {
-    Object.keys(insertElements).forEach((x) => insertElements[x].unmount());
+    Object.keys(insertElements).forEach((x) => insertElements[x].mountResult.unmount());
 
     insertElements = {};
 
@@ -187,7 +281,7 @@ const parseText = () => {
 
     const deletedElementIds = Object.keys(insertElements).filter((x) => !foundInsertElementIds.includes(x));
     deletedElementIds.forEach((x) => {
-        insertElements[x].unmount();
+        insertElements[x].mountResult.unmount();
         delete insertElements[x];
     });
 
@@ -195,8 +289,8 @@ const parseText = () => {
     items.value = newInsertItems;
 };
 
-const getItemType = (item: T): U => {
-    return item[props.editorOptions.typeField] as U;
+const getItemType = (item: T): string => {
+    return item[props.editorOptions.typeField] as string;
 };
 
 const getItemValue = (item: T): string => {
