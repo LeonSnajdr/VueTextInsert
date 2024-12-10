@@ -6,6 +6,10 @@ export interface InsertProps<T> {
 }
 
 export interface MenuProps<T> {
+    menu: Ref<MenuValues<T>>;
+}
+
+export interface MenuValues<T> {
     active: boolean;
     position: [number, number];
     query: string;

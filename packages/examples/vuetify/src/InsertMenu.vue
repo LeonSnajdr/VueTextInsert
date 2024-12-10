@@ -1,9 +1,13 @@
 <template>
-    <v-menu v-model="menAc" :target="menu.value.position">
+    <v-menu v-model="menu.value.active" :target="menu.value.position">
         <v-skeleton-loader v-if="loading" type="list-item-two-line" width="200"> </v-skeleton-loader>
 
         <v-list v-else>
-            <v-list-item v-for="item in items" :key="item.id">
+            <v-list-item
+                v-for="item in items"
+                :key="item.id"
+                @click="menu.value.addInsert({ value: item.text, age: 20, type: InsertType.Person, childern: [] })"
+            >
                 {{ item.text }}
             </v-list-item>
         </v-list>
@@ -11,15 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onBeforeUnmount, Ref, ref, watch } from "vue";
+import { onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
 import { MenuProps } from "vue-text-insert";
-import { InsertItemPerson } from "./Insert";
+import { InsertItemPerson, InsertType } from "./Insert";
 
-const menAc = ref(true);
-
-const props = defineProps<{
-    menu: Ref<MenuProps<InsertItemPerson>>;
-}>();
+const props = defineProps<MenuProps<InsertItemPerson>>();
 
 const loading = ref(false);
 

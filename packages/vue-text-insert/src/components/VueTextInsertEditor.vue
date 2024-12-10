@@ -12,11 +12,12 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { InsertProps, MenuProps } from "../types/PropTypes";
+import { onBeforeUnmount, onMounted, ref, toRef, toRefs, watch } from "vue";
+import { InsertProps, MenuProps, MenuValues } from "../types/PropTypes";
 import { EditorOptions, InsertOption } from "../types/OptionTypes";
-import { InsertElement, InsertMenu } from "../types/InternalTypes";
+import { InsertElement, InsertMenu, MountResult } from "../types/InternalTypes";
 import { useComponentMounter } from "../composable/componentMounter";
+import { useSelection } from "../composable/selection";
 
 const props = defineProps<{
     editorOptions: EditorOptions<T>;
@@ -25,11 +26,11 @@ const props = defineProps<{
 const items = defineModel<T[]>({ required: true });
 
 const menu = ref<HTMLSpanElement>();
-const menuProps = ref<MenuProps<T>>();
-const insertMenu = ref<InsertMenu>();
+const menuValues = ref({} as MenuValues<T>);
 
 const editor = ref<HTMLDivElement>();
 
+let activeMenu: { insertType: string; mountResult: MountResult };
 let internalItemsChange = false;
 let insertElements: Record<string, InsertElement<T>> = {};
 
@@ -67,36 +68,38 @@ const input = () => {
 
 const detectMenu = () => {
     const range = window.getSelection()!.getRangeAt(0);
-    const offset = range.endOffset;
-    const text = range.startContainer.textContent ?? "";
 
-    const triggeredInsert = findTriggeredInsert(text);
+    const insertOffsetEnd = range.endOffset;
+    const textBeforeCaret = range.startContainer.textContent ?? "";
+
+    const triggeredInsert = findTriggeredInsert(textBeforeCaret);
 
     if (!triggeredInsert) {
-        if (!menuProps.value) return;
-
-        menuProps.value.active = false;
+        if (!menuValues.value) return;
+        menuValues.value.active = false;
         return;
     }
 
-    const startOffset = offset - (triggeredInsert.query.length + triggeredInsert.insertOption.trigger.length);
+    const insertOffsetStart = insertOffsetEnd - (triggeredInsert.query.length + triggeredInsert.insertOption.trigger.length);
 
     const span = document.createElement("span");
     span.appendChild(document.createTextNode("\u200b"));
     range.insertNode(span);
     const rect = span.getBoundingClientRect();
-    const positon: [number, number] = [rect.left, rect.top + 30];
     span.remove();
 
-    menuProps.value = {
+    const positon: [number, number] = [rect.left, rect.top];
+
+    menuValues.value = {
         active: true,
         query: triggeredInsert.query,
+        position: positon,
         addInsert: (item: T) => {
             const newInsertElement = buildInsertElement(item);
 
             const replaceRange = document.createRange();
-            replaceRange.setStart(range.startContainer, startOffset);
-            replaceRange.setEnd(range.startContainer, offset);
+            replaceRange.setStart(range.startContainer, insertOffsetStart);
+            replaceRange.setEnd(range.startContainer, insertOffsetEnd);
 
             replaceRange.deleteContents();
             replaceRange.insertNode(newInsertElement.mountResult.element);
@@ -108,23 +111,26 @@ const detectMenu = () => {
             selection!.removeAllRanges();
             selection!.addRange(replaceRange);
 
-            menuProps.value!.active = false;
+            menuValues.value.active = false;
             parseText();
         },
-        position: positon,
     };
 
-    if (insertMenu.value?.activeType == triggeredInsert.type) return;
+    if (activeMenu?.insertType == triggeredInsert.type) return;
 
-    insertMenu.value?.mountResult.unmount();
+    activeMenu?.mountResult.unmount();
 
-    const menuMountResult = useComponentMounter(triggeredInsert.insertOption.menuComponent, { menu: menuProps });
+    const menuProps: MenuProps<T> = {
+        menu: menuValues,
+    };
+
+    const menuMountResult = useComponentMounter(triggeredInsert.insertOption.menuComponent, menuProps);
 
     menu.value!.innerHTML = "";
     menu.value!.appendChild(menuMountResult.element);
 
-    insertMenu.value = {
-        activeType: triggeredInsert.type,
+    activeMenu = {
+        insertType: triggeredInsert.type,
         mountResult: menuMountResult,
     };
 };
@@ -221,8 +227,6 @@ const buildInsertElement = (item: T): InsertElement<T> => {
     };
 
     insertElements[insertElementId] = insertElement;
-
-    editor.value!.append(wrapperElement);
 
     return insertElement;
 };
