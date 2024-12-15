@@ -4,8 +4,7 @@
         <VMenu activator="parent">
             <VCard>
                 <VCardText>
-                    <h3>Children:</h3>
-                    <p v-for="child in item.childern">- {{ child.childName }}</p>
+                    <p>Some more information</p>
                 </VCardText>
             </VCard>
         </VMenu>
