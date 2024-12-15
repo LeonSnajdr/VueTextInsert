@@ -4,13 +4,9 @@ export interface InsertElement<T> {
     mountResult: MountResult;
 }
 
-export interface InsertMenu<T> {
-    activeType: string;
+export interface InsertMenu {
+    insertType: string;
     mountResult: MountResult;
-    active: boolean;
-    position: [number, number];
-    query: string;
-    addInsert: (item: T) => void;
 }
 
 export interface MountResult {

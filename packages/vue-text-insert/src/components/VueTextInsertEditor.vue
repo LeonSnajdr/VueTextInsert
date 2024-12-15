@@ -15,7 +15,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { InsertProps, MenuProps, MenuValues } from "../types/PropTypes";
 import { EditorOptions, InsertOption } from "../types/OptionTypes";
-import { InsertElement, MountResult } from "../types/InternalTypes";
+import { InsertElement, InsertMenu, MountResult } from "../types/InternalTypes";
 import { useComponentMounter } from "../composable/componentMounter";
 
 const props = defineProps<{
@@ -29,7 +29,7 @@ const menuValues = ref({} as MenuValues<T>);
 
 const editor = ref<HTMLDivElement>();
 
-let activeMenu: { insertType: string; mountResult: MountResult } | undefined = undefined;
+let activeMenu: InsertMenu | undefined = undefined;
 let internalItemsChange = false;
 let insertElements: Record<string, InsertElement<T>> = {};
 
