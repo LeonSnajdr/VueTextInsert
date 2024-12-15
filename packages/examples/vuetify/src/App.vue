@@ -2,11 +2,9 @@
     <VApp>
         <VMain>
             <VContainer>
-                {{ renderArray }}
                 <VField variant="outlined" class="pa-2 mb-2" active>
                     <VueTextInsertEditor v-model="renderArray" :editorOptions></VueTextInsertEditor>
                 </VField>
-                <VBtn @click="addItem()">Add item</VBtn>
             </VContainer>
         </VMain>
     </VApp>
@@ -20,11 +18,12 @@ import InsertMenu from "./InsertMenu.vue";
 import { VueTextInsertEditor, EditorOptions } from "vue-text-insert";
 
 const renderArray = ref<InsertItem[]>([
-    { type: InsertType.Text, value: "Ich finde" },
-    { type: InsertType.Person, value: "Kittel", age: 30, childern: [{ childName: "Roli" }] },
-    { type: InsertType.Text, value: "sodert weniger als" },
-    { type: InsertType.Person, value: "Roli", age: 30, childern: [{ childName: "Leon" }] } as InsertItemPerson,
-    { type: InsertType.Text, value: ". Das ist allerdings\nnicht schwer" },
+    { type: InsertType.Text, value: "I think," },
+    { type: InsertType.Person, value: "John Doe", age: 30 } as InsertItemPerson,
+    { type: InsertType.Text, value: "should inform" },
+    { type: InsertType.Person, value: "Jane Doe", age: 35 } as InsertItemPerson,
+    { type: InsertType.Text, value: "about this topic.\nBest wishes" },
+    { type: InsertType.Person, value: "Max Mustermann", age: 50 } as InsertItemPerson,
 ]);
 
 const editorOptions: EditorOptions<InsertItem> = {
@@ -38,12 +37,5 @@ const editorOptions: EditorOptions<InsertItem> = {
             menuComponent: InsertMenu,
         },
     },
-};
-
-const addItem = () => {
-    renderArray.value.push({
-        type: InsertType.Person,
-        value: "adedd",
-    });
 };
 </script>
