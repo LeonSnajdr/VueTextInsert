@@ -12,12 +12,11 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { onBeforeUnmount, onMounted, ref, toRef, toRefs, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { InsertProps, MenuProps, MenuValues } from "../types/PropTypes";
 import { EditorOptions, InsertOption } from "../types/OptionTypes";
-import { InsertElement, InsertMenu, MountResult } from "../types/InternalTypes";
+import { InsertElement, MountResult } from "../types/InternalTypes";
 import { useComponentMounter } from "../composable/componentMounter";
-import { useSelection } from "../composable/selection";
 
 const props = defineProps<{
     editorOptions: EditorOptions<T>;
@@ -30,7 +29,7 @@ const menuValues = ref({} as MenuValues<T>);
 
 const editor = ref<HTMLDivElement>();
 
-let activeMenu: { insertType: string; mountResult: MountResult };
+let activeMenu: { insertType: string; mountResult: MountResult } | undefined = undefined;
 let internalItemsChange = false;
 let insertElements: Record<string, InsertElement<T>> = {};
 
@@ -75,8 +74,7 @@ const detectMenu = () => {
     const triggeredInsert = findTriggeredInsert(textBeforeCaret);
 
     if (!triggeredInsert) {
-        if (!menuValues.value) return;
-        menuValues.value.active = false;
+        resetMenu();
         return;
     }
 
@@ -91,7 +89,6 @@ const detectMenu = () => {
     const positon: [number, number] = [rect.left, rect.top];
 
     menuValues.value = {
-        active: true,
         query: triggeredInsert.query,
         position: positon,
         addInsert: (item: T) => {
@@ -111,14 +108,17 @@ const detectMenu = () => {
             selection!.removeAllRanges();
             selection!.addRange(replaceRange);
 
-            menuValues.value.active = false;
+            resetMenu();
             parseText();
+        },
+        closeMenu: () => {
+            resetMenu();
         },
     };
 
     if (activeMenu?.insertType == triggeredInsert.type) return;
 
-    activeMenu?.mountResult.unmount();
+    resetMenu();
 
     const menuProps: MenuProps<T> = {
         menu: menuValues,
@@ -133,6 +133,13 @@ const detectMenu = () => {
         insertType: triggeredInsert.type,
         mountResult: menuMountResult,
     };
+};
+
+const resetMenu = () => {
+    if (!activeMenu) return;
+
+    activeMenu.mountResult.unmount();
+    activeMenu = undefined;
 };
 
 const findTriggeredInsert = (text: string): { type: string; insertOption: InsertOption; query: string } | undefined => {

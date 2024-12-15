@@ -10,8 +10,8 @@ export interface MenuProps<T> {
 }
 
 export interface MenuValues<T> {
-    active: boolean;
     position: [number, number];
     query: string;
     addInsert: (item: T) => void;
+    closeMenu: () => void;
 }
