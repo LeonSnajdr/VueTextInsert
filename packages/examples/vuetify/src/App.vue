@@ -6,7 +6,7 @@
                     <VCardTitle> VueTextInsertEditor </VCardTitle>
                     <VCardText>
                         <VField variant="outlined" class="pa-2 mb-2" active>
-                            <VueTextInsertEditor v-model="renderArray" :editorOptions></VueTextInsertEditor>
+                            <VueTextInsertEditor v-model="renderArray" :editorOptions spellcheck="false" style="line-height: 1.7"></VueTextInsertEditor>
                         </VField>
                     </VCardText>
                 </VCard>
