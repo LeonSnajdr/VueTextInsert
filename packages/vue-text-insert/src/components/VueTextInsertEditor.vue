@@ -1,6 +1,6 @@
 <template>
     <span ref="menu"></span>
-    <div ref="editor" @input="input" @keydown="keydown" @paste.prevent="paste" style="width: 100%; outline: none" contenteditable="plaintext-only"></div>
+    <div ref="editor" @input="input" @paste.prevent="paste" style="width: 100%; outline: none" contenteditable="plaintext-only"></div>
 </template>
 
 <script setup lang="ts" generic="T">
@@ -46,15 +46,10 @@ watch(
     { deep: true }
 );
 
-const keydown = (e: KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
-        e.preventDefault();
-    }
-};
-
 const input = () => {
     detectMenu();
-    parseText();
+    reAddRemovedInsertElements();
+    parseEditorContentToItems();
 };
 
 const detectMenu = () => {
@@ -101,7 +96,7 @@ const detectMenu = () => {
             selection!.addRange(replaceRange);
 
             resetMenu();
-            parseText();
+            parseEditorContentToItems();
         },
         closeMenu: () => {
             resetMenu();
@@ -186,7 +181,7 @@ const paste = (event: ClipboardEvent) => {
     selection.removeAllRanges();
     selection.addRange(range);
 
-    parseText();
+    parseEditorContentToItems();
 };
 
 const render = (): void => {
@@ -230,7 +225,7 @@ const buildInsertElement = (item: T): InsertElement<T> => {
         item: item,
         destroy: () => {
             wrapperElement.remove();
-            parseText();
+            parseEditorContentToItems();
         },
     };
 
@@ -255,7 +250,24 @@ const clear = () => {
     editor.value!.innerHTML = "";
 };
 
-const parseText = () => {
+const reAddRemovedInsertElements = () => {
+    const editorInsertElements = editor.value!.querySelectorAll("[insert-element-id]");
+
+    for (const editorInsertElement of editorInsertElements) {
+        const insertElementId = editorInsertElement.getAttribute("insert-element-id")!;
+
+        if (insertElements[insertElementId]) continue;
+
+        const itemContent = editorInsertElement.getAttribute("insert-item-content")!;
+        const item = JSON.parse(itemContent);
+
+        const newInsertElement = buildInsertElement(item);
+
+        editorInsertElement.replaceWith(newInsertElement.mountResult.element);
+    }
+};
+
+const parseEditorContentToItems = () => {
     const newInsertItems: T[] = [];
     const foundInsertElementIds: string[] = [];
 
