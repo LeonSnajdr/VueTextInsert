@@ -19,8 +19,8 @@
                 </VCard>
 
                 <VCard>
-                    <VCardTitle> Edit linked people </VCardTitle>
-                    <VCardSubtitle>(Do not overuse this in a productive application)</VCardSubtitle>
+                    <VCardTitle> Edit inserts </VCardTitle>
+                    <VCardSubtitle>(Do not overuse this in a productive applications)</VCardSubtitle>
                     <VCardText>
                         <template v-for="person in peopole">
                             <VTextField v-model="person.value" variant="outlined" density="compact"></VTextField>
