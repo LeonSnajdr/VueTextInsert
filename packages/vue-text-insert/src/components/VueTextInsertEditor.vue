@@ -1,14 +1,6 @@
 <template>
     <span ref="menu"></span>
-    <div
-        ref="editor"
-        @input="input"
-        @keydown="keydown"
-        @copy.prevent="copy"
-        @paste.prevent="paste"
-        style="width: 100%; outline: none"
-        contenteditable="plaintext-only"
-    ></div>
+    <div ref="editor" @input="input" @keydown="keydown" @paste.prevent="paste" style="width: 100%; outline: none" contenteditable="plaintext-only"></div>
 </template>
 
 <script setup lang="ts" generic="T">
@@ -172,12 +164,29 @@ const findTriggeredInsert = (text: string): InsertQueryResult | undefined => {
     };
 };
 
-const copy = () => {
-    throw "Not implemented!";
-};
+const paste = (event: ClipboardEvent) => {
+    const clipboardData = event.clipboardData;
 
-const paste = () => {
-    throw "Not implemented!";
+    if (!clipboardData) return;
+
+    const text = clipboardData.getData("text/plain");
+
+    const selection = window.getSelection();
+
+    if (!selection?.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+
+    const textNode = document.createTextNode(text);
+    range.insertNode(textNode);
+
+    range.setStartAfter(textNode);
+    range.setEndAfter(textNode);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    parseText();
 };
 
 const render = (): void => {
