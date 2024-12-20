@@ -1,6 +1,6 @@
 <template>
     <span ref="menu"></span>
-    <div ref="editor" @input="input" @paste.prevent="paste" style="width: 100%; outline: none" contenteditable="plaintext-only"></div>
+    <div ref="editor" v-bind="$attrs" @input="input" @paste.prevent="paste" style="width: 100%; outline: none" contenteditable="plaintext-only"></div>
 </template>
 
 <script setup lang="ts" generic="T">
