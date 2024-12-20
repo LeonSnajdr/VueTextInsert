@@ -1,10 +1,31 @@
 <template>
     <VApp>
         <VMain>
-            <VContainer>
-                <VField variant="outlined" class="pa-2 mb-2" active>
-                    <VueTextInsertEditor v-model="renderArray" :editorOptions></VueTextInsertEditor>
-                </VField>
+            <VContainer class="d-flex flex-column ga-4">
+                <VCard>
+                    <VCardTitle> VueTextInsertEditor </VCardTitle>
+                    <VCardText>
+                        <VField variant="outlined" class="pa-2 mb-2" active>
+                            <VueTextInsertEditor v-model="renderArray" :editorOptions></VueTextInsertEditor>
+                        </VField>
+                    </VCardText>
+                </VCard>
+
+                <VCard>
+                    <VCardTitle> Editor array output</VCardTitle>
+                    <VCardText>
+                        {{ renderArray }}
+                    </VCardText>
+                </VCard>
+
+                <VCard>
+                    <VCardTitle> Edit linked people </VCardTitle>
+                    <VCardText>
+                        <template v-for="person in peopole">
+                            <VTextField v-model="person.value" variant="outlined" density="compact"></VTextField>
+                        </template>
+                    </VCardText>
+                </VCard>
             </VContainer>
         </VMain>
     </VApp>
@@ -12,7 +33,7 @@
 
 <script setup lang="ts">
 import { InsertItem, InsertItemPerson, InsertType } from "./Insert";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import InsertChip from "./InsertChip.vue";
 import InsertMenu from "./InsertMenu.vue";
 import { VueTextInsertEditor, EditorOptions } from "vue-text-insert";
@@ -38,4 +59,8 @@ const editorOptions: EditorOptions<InsertItem> = {
         },
     },
 };
+
+const peopole = computed(() => {
+    return renderArray.value.filter((x) => x.type === InsertType.Person) as InsertItemPerson[];
+});
 </script>
