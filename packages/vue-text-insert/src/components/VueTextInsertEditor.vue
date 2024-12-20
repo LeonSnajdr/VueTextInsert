@@ -15,7 +15,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { InsertProps, MenuProps, MenuValues } from "../types/PropTypes";
 import { EditorOptions, InsertOption } from "../types/OptionTypes";
-import { InsertElement, InsertMenu, MountResult } from "../types/InternalTypes";
+import { InsertElement, InsertMenu, InsertQueryResult } from "../types/InternalTypes";
 import { useComponentMounter } from "../composable/componentMounter";
 
 const props = defineProps<{
@@ -116,7 +116,7 @@ const detectMenu = () => {
         },
     };
 
-    if (activeMenu?.insertType == triggeredInsert.type) return;
+    if (activeMenu?.insertType == triggeredInsert.insertType) return;
 
     resetMenu();
 
@@ -130,7 +130,7 @@ const detectMenu = () => {
     menu.value!.appendChild(menuMountResult.element);
 
     activeMenu = {
-        insertType: triggeredInsert.type,
+        insertType: triggeredInsert.insertType,
         mountResult: menuMountResult,
     };
 };
@@ -142,7 +142,7 @@ const resetMenu = () => {
     activeMenu = undefined;
 };
 
-const findTriggeredInsert = (text: string): { type: string; insertOption: InsertOption; query: string } | undefined => {
+const findTriggeredInsert = (text: string): InsertQueryResult | undefined => {
     let lastTriggerIndex = -1;
 
     let lastInsertType: string = "";
@@ -166,7 +166,7 @@ const findTriggeredInsert = (text: string): { type: string; insertOption: Insert
     if (hasWhitespace) return undefined;
 
     return {
-        type: lastInsertType,
+        insertType: lastInsertType,
         insertOption: lastInsertOption,
         query: resultText,
     };
@@ -227,7 +227,7 @@ const buildInsertElement = (item: T): InsertElement<T> => {
 
     const mountResult = useComponentMounter(insertOptions.insertComponent, insertProps, wrapperElement);
 
-    var insertElement: InsertElement<T> = {
+    let insertElement: InsertElement<T> = {
         id: insertElementId,
         item: item,
         mountResult: mountResult,

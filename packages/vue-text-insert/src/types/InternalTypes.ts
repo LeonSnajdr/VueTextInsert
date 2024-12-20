@@ -1,3 +1,5 @@
+import { InsertOption } from "./OptionTypes";
+
 export interface InsertElement<T> {
     id: string;
     item: T;
@@ -7,6 +9,12 @@ export interface InsertElement<T> {
 export interface InsertMenu {
     insertType: string;
     mountResult: MountResult;
+}
+
+export interface InsertQueryResult {
+    insertType: string;
+    insertOption: InsertOption;
+    query: string;
 }
 
 export interface MountResult {
