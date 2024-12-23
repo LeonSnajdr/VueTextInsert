@@ -8,7 +8,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { InsertProps, MenuProps, MenuValues } from "@/types/PropTypes";
 import { EditorOptions, InsertOption } from "@/types/OptionTypes";
 import { InsertElement, InsertMenu, InsertQueryResult } from "@/types/InternalTypes";
-import { useComponentMounter } from "@/composable/componentMounter";
+import MountService from "@/services/MountService";
 
 const props = defineProps<{
     editorOptions: EditorOptions<T>;
@@ -180,7 +180,7 @@ const mountMenuComponent = (triggeredInsert: InsertQueryResult) => {
         menu: menuValues,
     };
 
-    const menuMountResult = useComponentMounter(triggeredInsert.insertOption.menuComponent, menuProps);
+    const menuMountResult = MountService.mountComponent(triggeredInsert.insertOption.menuComponent, menuProps);
 
     menu.value!.innerHTML = "";
     menu.value!.appendChild(menuMountResult.element);
@@ -270,7 +270,7 @@ const buildInsertElement = (item: T): InsertElement<T> => {
         },
     };
 
-    const mountResult = useComponentMounter(insertOptions.insertComponent, insertProps, wrapperElement);
+    const mountResult = MountService.mountComponent(insertOptions.insertComponent, insertProps, wrapperElement);
 
     let insertElement: InsertElement<T> = {
         id: insertElementId,
