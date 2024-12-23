@@ -30,7 +30,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-    clear();
+    clearEditor();
 });
 
 watch(
@@ -185,7 +185,7 @@ const paste = (event: ClipboardEvent) => {
 };
 
 const render = (): void => {
-    clear();
+    clearEditor();
 
     items.value.forEach((item) => {
         const isConfiguredType = Object.keys(props.editorOptions.insertOptions).includes(getItemType(item));
@@ -224,6 +224,14 @@ const buildInsertElement = (item: T): InsertElement<T> => {
     const insertProps: InsertProps<T> = {
         item: item,
         destroy: () => {
+            const range = document.createRange();
+            range.setStartBefore(wrapperElement);
+            range.collapse(true);
+
+            const selection = window.getSelection()!;
+            selection.removeAllRanges();
+            selection.addRange(range);
+
             wrapperElement.remove();
             handleInsertElements();
             parseEditorContentToItems();
@@ -243,7 +251,7 @@ const buildInsertElement = (item: T): InsertElement<T> => {
     return insertElement;
 };
 
-const clear = () => {
+const clearEditor = () => {
     Object.keys(insertElements).forEach((x) => insertElements[x].mountResult.unmount());
 
     insertElements = {};
