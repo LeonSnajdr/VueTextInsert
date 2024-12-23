@@ -10,9 +10,6 @@ class MountService {
         this.appInstance = appInstance;
     }
 
-    public getAppInstance(): App {
-        return this.appInstance!;
-    }
     public mountComponent(component: Component, props: any, wrapperElement?: HTMLElement): MountResult {
         if (!this.appInstance) {
             throw "Could not mount component, because the appInstance is not set. Ensure to use the plugin";
