@@ -11,7 +11,10 @@
     ],
     "jsx": "preserve",
     "outDir": "dist",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "src/**/*.ts",

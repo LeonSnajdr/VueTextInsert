@@ -5,10 +5,10 @@
 
 <script setup lang="ts" generic="T">
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { InsertProps, MenuProps, MenuValues } from "../types/PropTypes";
-import { EditorOptions, InsertOption } from "../types/OptionTypes";
-import { InsertElement, InsertMenu, InsertQueryResult } from "../types/InternalTypes";
-import { useComponentMounter } from "../composable/componentMounter";
+import { InsertProps, MenuProps, MenuValues } from "@/types/PropTypes";
+import { EditorOptions, InsertOption } from "@/types/OptionTypes";
+import { InsertElement, InsertMenu, InsertQueryResult } from "@/types/InternalTypes";
+import { useComponentMounter } from "@/composable/componentMounter";
 
 const props = defineProps<{
     editorOptions: EditorOptions<T>;

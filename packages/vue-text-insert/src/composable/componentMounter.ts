@@ -1,6 +1,6 @@
 import { Component, h, render } from "vue";
-import { MountResult } from "../types/InternalTypes";
-import MountService from "../services/MountService";
+import { MountResult } from "@/types/InternalTypes";
+import MountService from "@/services/MountService";
 
 export function useComponentMounter(component: Component, props: any, wrapperElement?: HTMLElement): MountResult {
     let vNode = h(component, props);

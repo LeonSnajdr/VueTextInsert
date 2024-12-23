@@ -1,4 +1,4 @@
-import { InsertOption } from "./OptionTypes";
+import { InsertOption } from "@/types/OptionTypes";
 
 export interface InsertElement<T> {
     id: string;
