@@ -219,24 +219,24 @@ const paste = (event: ClipboardEvent) => {
 const render = (): void => {
     clearEditor();
 
-    items.value.forEach((item) => {
+    for (const item of items.value) {
         const isConfiguredType = Object.keys(props.editorOptions.insertOptions).includes(getItemType(item));
         const isTextType = getItemType(item) === props.editorOptions.textType;
 
         if (!isTextType && !isConfiguredType) {
             console.error(`Trying to render unconfigured ItemType ${getItemType(item)}`);
-            return;
+            continue;
         }
 
         if (isTextType) {
             const itemValue = getItemValue(item);
             editor.value!.append(itemValue);
-            return;
+            continue;
         }
 
         const insertElement = buildInsertElement(item);
         editor.value!.append(insertElement.mountResult.element);
-    });
+    }
 };
 
 const buildInsertElement = (item: T): InsertElement<T> => {
@@ -284,9 +284,11 @@ const buildInsertElement = (item: T): InsertElement<T> => {
 };
 
 const clearEditor = () => {
-    Object.keys(insertElements).forEach((x) => insertElements[x].mountResult.unmount());
-
-    insertElements = {};
+    const insertElementIds = Object.keys(insertElements);
+    for (const insertElementId of insertElementIds) {
+        insertElements[insertElementId].mountResult.unmount();
+        delete insertElements[insertElementId];
+    }
 
     editor.value!.innerHTML = "";
 };
@@ -339,7 +341,7 @@ const parseEditorContentToItems = () => {
 
     let currentText = "";
 
-    editor.value!.childNodes.forEach((node) => {
+    for (const node of editor.value!.childNodes) {
         const element = node as HTMLElement;
 
         if (element.nodeType === Node.TEXT_NODE) {
@@ -355,7 +357,7 @@ const parseEditorContentToItems = () => {
                 addInsertItem(itemContent);
             }
         }
-    });
+    }
 
     if (currentText) {
         addTextItem(currentText);
