@@ -16,14 +16,16 @@ const props = defineProps<{
 
 const items = defineModel<T[]>({ required: true });
 
+const editor = ref<HTMLDivElement>();
 const menu = ref<HTMLSpanElement>();
 const menuValues = ref({} as MenuValues<T>);
-
-const editor = ref<HTMLDivElement>();
 
 let activeMenu: InsertMenu | undefined = undefined;
 let internalItemsChange = false;
 let insertElements: Record<string, InsertElement<T>> = {};
+
+const INSERT_ELEMENT_ID = "insert-element-id";
+const INSERT_ELEMENT_CONTENT = "insert-element-conent";
 
 onMounted(() => {
     render();
@@ -242,8 +244,8 @@ const buildInsertElement = (item: T): InsertElement<T> => {
 
     const wrapperElement = document.createElement("span");
     wrapperElement.contentEditable = "false";
-    wrapperElement.setAttribute("insert-element-id", insertElementId);
-    wrapperElement.setAttribute("insert-item-content", JSON.stringify(item));
+    wrapperElement.setAttribute(INSERT_ELEMENT_ID, insertElementId);
+    wrapperElement.setAttribute(INSERT_ELEMENT_CONTENT, JSON.stringify(item));
 
     const insertOptions = props.editorOptions.insertOptions[getItemType(item)];
 
@@ -293,15 +295,15 @@ const clearEditor = () => {
 const handleInsertElements = () => {
     const foundInsertElementIds: string[] = [];
 
-    const editorInsertElements = editor.value!.querySelectorAll("[insert-element-id]");
+    const editorInsertElements = editor.value!.querySelectorAll(`[${INSERT_ELEMENT_ID}]`);
     for (const editorInsertElement of editorInsertElements) {
-        const insertElementId = editorInsertElement.getAttribute("insert-element-id")!;
+        const insertElementId = editorInsertElement.getAttribute(INSERT_ELEMENT_ID)!;
 
         foundInsertElementIds.push(insertElementId);
 
         if (insertElements[insertElementId]) continue;
 
-        const itemContent = editorInsertElement.getAttribute("insert-item-content")!;
+        const itemContent = editorInsertElement.getAttribute(INSERT_ELEMENT_CONTENT)!;
         const item = JSON.parse(itemContent);
 
         const newInsertElement = buildInsertElement(item);
@@ -348,7 +350,7 @@ const parseEditorContentToItems = () => {
                 currentText = "";
             }
 
-            const itemContent = element.getAttribute("insert-item-content");
+            const itemContent = element.getAttribute(INSERT_ELEMENT_CONTENT);
             if (itemContent) {
                 addInsertItem(itemContent);
             }
