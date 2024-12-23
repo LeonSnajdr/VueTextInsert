@@ -48,7 +48,7 @@ watch(
 
 const input = () => {
     detectMenu();
-    reAddRemovedInsertElements();
+    handleInsertElements();
     parseEditorContentToItems();
 };
 
@@ -225,6 +225,7 @@ const buildInsertElement = (item: T): InsertElement<T> => {
         item: item,
         destroy: () => {
             wrapperElement.remove();
+            handleInsertElements();
             parseEditorContentToItems();
         },
     };
@@ -250,11 +251,15 @@ const clear = () => {
     editor.value!.innerHTML = "";
 };
 
-const reAddRemovedInsertElements = () => {
-    const editorInsertElements = editor.value!.querySelectorAll("[insert-element-id]");
+// Re adds insert elements that got removed (for example by ctrl + z), also removes and destroys removed insert elemets
+const handleInsertElements = () => {
+    const foundInsertElementIds: string[] = [];
 
+    const editorInsertElements = editor.value!.querySelectorAll("[insert-element-id]");
     for (const editorInsertElement of editorInsertElements) {
         const insertElementId = editorInsertElement.getAttribute("insert-element-id")!;
+
+        foundInsertElementIds.push(insertElementId);
 
         if (insertElements[insertElementId]) continue;
 
@@ -263,13 +268,20 @@ const reAddRemovedInsertElements = () => {
 
         const newInsertElement = buildInsertElement(item);
 
+        foundInsertElementIds.push(newInsertElement.id);
+
         editorInsertElement.replaceWith(newInsertElement.mountResult.element);
+    }
+
+    const deletedInsertElementIds = Object.keys(insertElements).filter((x) => !foundInsertElementIds.includes(x));
+    for (const deletedInsertElementId of deletedInsertElementIds) {
+        insertElements[deletedInsertElementId].mountResult.unmount();
+        delete insertElements[deletedInsertElementId];
     }
 };
 
 const parseEditorContentToItems = () => {
-    const newInsertItems: T[] = [];
-    const foundInsertElementIds: string[] = [];
+    const parsedItems: T[] = [];
 
     const addTextItem = (value: string) => {
         const item = {
@@ -277,12 +289,12 @@ const parseEditorContentToItems = () => {
             [props.editorOptions.valueField]: value,
         } as T;
 
-        newInsertItems.push(item);
+        parsedItems.push(item);
     };
 
     const addInsertItem = (itemContent: string) => {
         const item: T = JSON.parse(itemContent);
-        newInsertItems.push(item);
+        parsedItems.push(item);
     };
 
     let currentText = "";
@@ -302,7 +314,6 @@ const parseEditorContentToItems = () => {
 
             if (itemContent) {
                 addInsertItem(itemContent);
-                foundInsertElementIds.push(element.getAttribute("insert-element-id")!);
             }
         }
     });
@@ -311,14 +322,8 @@ const parseEditorContentToItems = () => {
         addTextItem(currentText);
     }
 
-    const deletedElementIds = Object.keys(insertElements).filter((x) => !foundInsertElementIds.includes(x));
-    deletedElementIds.forEach((x) => {
-        insertElements[x].mountResult.unmount();
-        delete insertElements[x];
-    });
-
     internalItemsChange = true;
-    items.value = newInsertItems;
+    items.value = parsedItems;
 };
 
 const getItemType = (item: T): string => {
