@@ -17,16 +17,6 @@
                         {{ renderArray }}
                     </VCardText>
                 </VCard>
-
-                <VCard>
-                    <VCardTitle> Edit inserts </VCardTitle>
-                    <VCardSubtitle>(Do not overuse this in a productive applications)</VCardSubtitle>
-                    <VCardText>
-                        <template v-for="person in peopole">
-                            <VTextField v-model="person.value" variant="outlined" density="compact"></VTextField>
-                        </template>
-                    </VCardText>
-                </VCard>
             </VContainer>
         </VMain>
     </VApp>
@@ -34,7 +24,7 @@
 
 <script setup lang="ts">
 import { InsertItem, InsertItemPerson, InsertType } from "./Insert";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import InsertChip from "./InsertChip.vue";
 import InsertMenu from "./InsertMenu.vue";
 import { VueTextInsertEditor, EditorOptions } from "vue-text-insert";
@@ -60,8 +50,4 @@ const editorOptions: EditorOptions<InsertItem> = {
         },
     },
 };
-
-const peopole = computed(() => {
-    return renderArray.value.filter((x) => x.type === InsertType.Person) as InsertItemPerson[];
-});
 </script>
