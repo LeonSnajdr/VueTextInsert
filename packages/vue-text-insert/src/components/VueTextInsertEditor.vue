@@ -53,15 +53,15 @@ const input = () => {
 };
 
 const detectMenu = () => {
-    const range = window.getSelection()!.getRangeAt(0);
+    const selection = window.getSelection();
 
-    const insertOffsetEnd = range.endOffset;
+    if (!selection || selection.rangeCount === 0) {
+        resetMenu();
+        return;
+    }
 
-    const clonedRange = range.cloneRange();
-    clonedRange.setStart(editor.value!, 0);
-
-    const textBeforeCaret = clonedRange.toString();
-
+    const currentRange = selection.getRangeAt(0);
+    const textBeforeCaret = getTextBeforeCaret(editor.value!, currentRange);
     const triggeredInsert = findTriggeredInsert(textBeforeCaret);
 
     if (!triggeredInsert) {
@@ -69,61 +69,22 @@ const detectMenu = () => {
         return;
     }
 
-    const insertOffsetStart = insertOffsetEnd - (triggeredInsert.query.length + triggeredInsert.insertOption.trigger.length);
-
-    const span = document.createElement("span");
-    span.appendChild(document.createTextNode("\u200b"));
-    range.insertNode(span);
-    const rect = span.getBoundingClientRect();
-    span.remove();
-
-    const positon: [number, number] = [rect.left, rect.top];
+    const { startOffset, endOffset } = getTriggerOffsets(currentRange, triggeredInsert);
+    const menuPosition = getCaretScreenPosition(currentRange);
 
     menuValues.value = {
         query: triggeredInsert.query,
-        position: positon,
+        position: menuPosition,
         addInsert: (item: T) => {
-            const newInsertElement = buildInsertElement(item);
-
-            const replaceRange = document.createRange();
-            replaceRange.setStart(range.startContainer, insertOffsetStart);
-            replaceRange.setEnd(range.startContainer, insertOffsetEnd);
-
-            replaceRange.deleteContents();
-            replaceRange.insertNode(newInsertElement.mountResult.element);
-
-            // Move the cursor to the end of the inserted node
-            const selection = window.getSelection();
-            replaceRange.setStartAfter(newInsertElement.mountResult.element);
-            replaceRange.setEndAfter(newInsertElement.mountResult.element);
-            selection!.removeAllRanges();
-            selection!.addRange(replaceRange);
-
-            resetMenu();
-            parseEditorContentToItems();
+            insertItemAtTriggerPosition(item, currentRange, startOffset, endOffset);
         },
-        closeMenu: () => {
-            resetMenu();
-        },
+        closeMenu: resetMenu,
     };
 
     if (activeMenu?.insertType == triggeredInsert.insertType) return;
 
     resetMenu();
-
-    const menuProps: MenuProps<T> = {
-        menu: menuValues,
-    };
-
-    const menuMountResult = useComponentMounter(triggeredInsert.insertOption.menuComponent, menuProps);
-
-    menu.value!.innerHTML = "";
-    menu.value!.appendChild(menuMountResult.element);
-
-    activeMenu = {
-        insertType: triggeredInsert.insertType,
-        mountResult: menuMountResult,
-    };
+    mountMenuComponent(triggeredInsert);
 };
 
 const resetMenu = () => {
@@ -160,6 +121,71 @@ const findTriggeredInsert = (text: string): InsertQueryResult | undefined => {
         insertType: lastInsertType,
         insertOption: lastInsertOption,
         query: resultText,
+    };
+};
+
+const getTextBeforeCaret = (editorElement: HTMLElement, range: Range): string => {
+    const caretRange = range.cloneRange();
+    caretRange.setStart(editorElement, 0);
+
+    return caretRange.toString();
+};
+
+const getTriggerOffsets = (range: Range, triggeredInsert: InsertQueryResult): { startOffset: number; endOffset: number } => {
+    const endOffset = range.endOffset;
+    const triggerLength = triggeredInsert.query.length + triggeredInsert.insertOption.trigger.length;
+    const startOffset = endOffset - triggerLength;
+
+    return { startOffset, endOffset };
+};
+
+const getCaretScreenPosition = (range: Range): [number, number] => {
+    const tempSpan = document.createElement("span");
+    tempSpan.appendChild(document.createTextNode("\u200b"));
+    range.insertNode(tempSpan);
+    const rect = tempSpan.getBoundingClientRect();
+    tempSpan.remove();
+
+    return [rect.left, rect.top];
+};
+
+const insertItemAtTriggerPosition = (item: T, range: Range, startOffset: number, endOffset: number) => {
+    const newInsertElement = buildInsertElement(item);
+
+    const replaceRange = document.createRange();
+    replaceRange.setStart(range.startContainer, startOffset);
+    replaceRange.setEnd(range.startContainer, endOffset);
+
+    replaceRange.deleteContents();
+    replaceRange.insertNode(newInsertElement.mountResult.element);
+
+    // Move the caret to after the inserted element
+    const selection = window.getSelection();
+    if (selection) {
+        const newRange = document.createRange();
+        newRange.setStartAfter(newInsertElement.mountResult.element);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+    }
+
+    resetMenu();
+    parseEditorContentToItems();
+};
+
+const mountMenuComponent = (triggeredInsert: InsertQueryResult) => {
+    const menuProps: MenuProps<T> = {
+        menu: menuValues,
+    };
+
+    const menuMountResult = useComponentMounter(triggeredInsert.insertOption.menuComponent, menuProps);
+
+    menu.value!.innerHTML = "";
+    menu.value!.appendChild(menuMountResult.element);
+
+    activeMenu = {
+        insertType: triggeredInsert.insertType,
+        mountResult: menuMountResult,
     };
 };
 
