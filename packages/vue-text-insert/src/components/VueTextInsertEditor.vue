@@ -319,7 +319,6 @@ const parseEditorContentToItems = () => {
             }
 
             const itemContent = element.getAttribute("insert-item-content");
-
             if (itemContent) {
                 addInsertItem(itemContent);
             }
