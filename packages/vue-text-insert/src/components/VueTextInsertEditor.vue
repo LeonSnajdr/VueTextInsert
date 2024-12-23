@@ -56,7 +56,11 @@ const detectMenu = () => {
     const range = window.getSelection()!.getRangeAt(0);
 
     const insertOffsetEnd = range.endOffset;
-    const textBeforeCaret = range.startContainer.textContent ?? "";
+
+    const clonedRange = range.cloneRange();
+    clonedRange.setStart(editor.value!, 0);
+
+    const textBeforeCaret = clonedRange.toString();
 
     const triggeredInsert = findTriggeredInsert(textBeforeCaret);
 
