@@ -61,7 +61,7 @@ const detectMenu = () => {
     }
 
     const currentRange = selection.getRangeAt(0);
-    const textBeforeCaret = getTextBeforeCaret(editor.value!, currentRange);
+    const textBeforeCaret = getTextBeforeCaret(currentRange);
     const triggeredInsert = findTriggeredInsert(textBeforeCaret);
 
     if (!triggeredInsert) {
@@ -124,9 +124,9 @@ const findTriggeredInsert = (text: string): InsertQueryResult | undefined => {
     };
 };
 
-const getTextBeforeCaret = (editorElement: HTMLElement, range: Range): string => {
+const getTextBeforeCaret = (range: Range): string => {
     const caretRange = range.cloneRange();
-    caretRange.setStart(editorElement, 0);
+    caretRange.setStart(editor.value!, 0);
 
     return caretRange.toString();
 };
