@@ -4,7 +4,7 @@ The VueTextInsert library is designed to enable the insertion of Vue components 
 
 ## Key Features
 
--   **Insert Elements:** Dynamically insert and render Vue components within the text based on user input.
+-   **Insert Vue components:** Dynamically insert and render Vue components within the text based on user input.
 -   **Customizable Menu:** Provides a menu system to select and insert components.
 -   **Text Parsing:** Converts text input and element selections back into a structured list format.
 
