@@ -1,0 +1,30 @@
+{
+    "name": "vue-text-insert",
+    "private": false,
+    "version": "0.0.0",
+    "type": "module",
+    "main": "./dist/vue-text-insert.umd.js",
+    "module": "./dist/vue-text-insert.es.js",
+    "types": "./dist/main.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "dev": "vue-tsc -b && vite build --watch",
+        "build": "vue-tsc -b && vite build"
+    },
+    "peerDependencies": {
+        "vue": ">=3.3 <4.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.2.1",
+        "typescript": "~5.6.2",
+        "vite": "^6.0.1",
+        "vite-plugin-dts": "^4.3.0",
+        "vue": "^3.5.13",
+        "vue-tsc": "^2.1.10"
+    },
+    "volta": {
+        "node": "22.12.0"
+    }
+}

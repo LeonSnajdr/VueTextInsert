@@ -1,0 +1,11 @@
+{
+    "name": "vue-text-insert-monorepo",
+    "version": "0.0.0",
+    "private": false,
+    "author": "lsnajdr",
+    "license": "MIT",
+    "workspaces": [
+        "packages/vue-text-insert",
+        "packages/examples/vuetify"
+    ]
+}
