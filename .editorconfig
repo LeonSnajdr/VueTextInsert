@@ -1,8 +1,7 @@
 [*.js]
 [*.cjs]
-indent_size = 2
-
 [*.scss]
+[*.yaml]
 indent_size = 2
 
 [*.sh]
