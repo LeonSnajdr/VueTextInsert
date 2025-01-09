@@ -8,13 +8,15 @@ jobs:
   publish:
     name: publish
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     defaults:
       run:
         working-directory: packages/vue-text-insert
     steps:
       - uses: actions/checkout@v4
       - uses: volta-cli/action@v4
-      - run: npm version --allow-same-version --no-commit-hooks --no-git-tag-version from-git
       - run: npm ci
       - uses: JS-DevTools/npm-publish@v3
         with:
