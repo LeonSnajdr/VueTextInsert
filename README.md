@@ -135,7 +135,7 @@ interface MenuValues<T> {
 
 | Field Name  | Explanation                                                                                                                                                                                                                          |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `position`  | The coordinates (typically x and y) of the menu, defining where it should appear on the screen.                                                                                                                                      |
+| `position`  | The coordinates (x and y) of the menu, defining where it should appear on the screen.                                                                                                                                                |
 | `query`     | The current input string that the user typed, used to filter available `InsertItems` displayed in the menu.                                                                                                                          |
 | `addInsert` | A function that accepts an `InsertItem` and adds it as an insert within the editor.                                                                                                                                                  |
 | `closeMenu` | A function that closes the menu. Must be called if the user has not selected an `InsertItem` (e.g. the `addInsert` method has not been called) in order to keep the editor state valid and to be able to unmount the menu correctly. |
