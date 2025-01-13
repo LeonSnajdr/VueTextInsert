@@ -3,6 +3,11 @@
     "private": false,
     "version": "0.0.0",
     "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/LeonSnajdr/VueTextInsert.git",
+        "directory": "packages/vue-text-insert"
+    },
     "main": "./dist/vue-text-insert.umd.js",
     "module": "./dist/vue-text-insert.es.js",
     "types": "./dist/main.d.ts",
