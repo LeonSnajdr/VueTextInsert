@@ -1,6 +1,5 @@
 name: publish
 on:
-  workflow_dispatch:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
@@ -23,3 +22,4 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           package: packages/vue-text-insert/package.json
+          access: public
