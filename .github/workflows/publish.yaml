@@ -16,8 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: volta-cli/action@v4
-      - run: npm ci
       - run: npm version --allow-same-version --no-commit-hooks --no-git-tag-version from-git
+      - run: npm ci
+      - run: npm run build
       - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_TOKEN }}
